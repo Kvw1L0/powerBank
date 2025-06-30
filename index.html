@@ -107,7 +107,7 @@
 
   <script>
     let watts = 0;
-    const maxWatts = 100;
+    const maxWatts = 500;
     const fillBar = document.getElementById('fillBar');
     const wattCounter = document.getElementById('wattCounter');
     const confettiContainer = document.getElementById('confettiContainer');
@@ -143,7 +143,7 @@
         const shakePower = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
 
         if (shakePower > 30 && !celebrationTriggered) {
-          watts = Math.min(watts + 2, maxWatts);
+          watts = Math.min(watts + 1, maxWatts);
           wattCounter.innerText = watts;
           updateBattery();
         }
