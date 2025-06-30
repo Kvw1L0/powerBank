@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Energía Colectiva - Siemens Energy</title>
+  <title>Energía Colectiva - Siemens Energy V2</title>
   <style>
     body {
       margin: 0;
@@ -13,6 +12,7 @@
       color: white;
       text-align: center;
       padding: 20px;
+      overflow-x: hidden;
     }
 
     .logo {
@@ -46,7 +46,7 @@
       height: 100%;
       width: 0%;
       border-radius: 8px;
-      transition: width 0.2s ease-in-out;
+      transition: width 0.5s ease-in-out;
     }
 
     .watts {
@@ -65,17 +65,26 @@
       opacity: 0.6;
     }
 
-    .lightning {
-      display: none;
-      font-size: 80px;
-      animation: pulse 0.8s ease-in-out infinite;
-      margin-top: 30px;
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.5; }
-      100% { transform: scale(1); opacity: 1; }
+    .ray {
+      position: absolute;
+      font-size: 32px;
+      animation: fall 2s linear infinite;
+      color: #00ffcc;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(0) rotate(0); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
     }
   </style>
 </head>
@@ -92,18 +101,40 @@
     <span id="wattCounter">0</span> Watts generados
   </div>
 
-  <div id="lightning" class="lightning">⚡</div>
+  <div class="confetti" id="confettiContainer"></div>
 
   <div class="footer">Siemens Energy OpenDay 2025</div>
 
   <script>
     let watts = 0;
+    const maxWatts = 100;
     const fillBar = document.getElementById('fillBar');
     const wattCounter = document.getElementById('wattCounter');
-    const lightning = document.getElementById('lightning');
+    const confettiContainer = document.getElementById('confettiContainer');
+    let celebrationTriggered = false;
 
-    function triggerLightning() {
-      lightning.style.display = 'block';
+    function updateBattery() {
+      let percent = Math.min((watts / maxWatts) * 100, 100);
+      fillBar.style.width = percent + '%';
+
+      if (watts >= maxWatts && !celebrationTriggered) {
+        celebrationTriggered = true;
+        triggerRayoConfetti();
+      }
+    }
+
+    function triggerRayoConfetti() {
+      for (let i = 0; i < 60; i++) {
+        const ray = document.createElement('div');
+        ray.classList.add('ray');
+        ray.style.left = Math.random() * 100 + 'vw';
+        ray.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+        ray.style.fontSize = (Math.random() * 24 + 24) + 'px';
+        ray.textContent = '⚡';
+        confettiContainer.appendChild(ray);
+
+        setTimeout(() => ray.remove(), 3000);
+      }
     }
 
     if (window.DeviceMotionEvent) {
@@ -111,15 +142,10 @@
         const acc = event.accelerationIncludingGravity;
         const shakePower = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
 
-        if (shakePower > 30) {
-          watts += Math.round(shakePower);
+        if (shakePower > 30 && !celebrationTriggered) {
+          watts = Math.min(watts + 2, maxWatts);
           wattCounter.innerText = watts;
-          let percent = Math.min(watts / 1000 * 100, 100);
-          fillBar.style.width = percent + '%';
-
-          if (percent >= 100) {
-            triggerLightning();
-          }
+          updateBattery();
         }
       });
     } else {
