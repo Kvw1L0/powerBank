@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Energía Colectiva - Siemens Energy</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #4e0199, #00b0ca);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .logo {
+      margin-top: 10px;
+    }
+
+    .battery {
+      margin: 40px auto;
+      width: 80%;
+      max-width: 400px;
+      height: 60px;
+      border: 4px solid white;
+      border-radius: 12px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .battery::after {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: -12px;
+      width: 12px;
+      height: 60%;
+      background: white;
+      border-radius: 2px;
+    }
+
+    .fill {
+      background: #00ffcc;
+      height: 100%;
+      width: 0%;
+      border-radius: 8px;
+      transition: width 0.2s ease-in-out;
+    }
+
+    .watts {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    .hint {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    .footer {
+      margin-top: 50px;
+      font-size: 14px;
+      opacity: 0.6;
+    }
+
+    .lightning {
+      display: none;
+      font-size: 80px;
+      animation: pulse 0.8s ease-in-out infinite;
+      margin-top: 30px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Siemens_Energy_logo_2020.svg/2560px-Siemens_Energy_logo_2020.svg.png" alt="Siemens Energy" width="200" />
+  <h1>¡Activa tu Energía!</h1>
+  <p class="hint">Sacude tu celular para cargar la batería colectiva ⚡</p>
+
+  <div class="battery">
+    <div class="fill" id="fillBar"></div>
+  </div>
+
+  <div class="watts">
+    <span id="wattCounter">0</span> Watts generados
+  </div>
+
+  <div id="lightning" class="lightning">⚡</div>
+
+  <div class="footer">Siemens Energy OpenDay 2025</div>
+
+  <script>
+    let watts = 0;
+    const fillBar = document.getElementById('fillBar');
+    const wattCounter = document.getElementById('wattCounter');
+    const lightning = document.getElementById('lightning');
+
+    function triggerLightning() {
+      lightning.style.display = 'block';
+    }
+
+    if (window.DeviceMotionEvent) {
+      window.addEventListener('devicemotion', (event) => {
+        const acc = event.accelerationIncludingGravity;
+        const shakePower = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+
+        if (shakePower > 30) {
+          watts += Math.round(shakePower);
+          wattCounter.innerText = watts;
+          let percent = Math.min(watts / 1000 * 100, 100);
+          fillBar.style.width = percent + '%';
+
+          if (percent >= 100) {
+            triggerLightning();
+          }
+        }
+      });
+    } else {
+      alert('Tu dispositivo no soporta el sensor de movimiento');
+    }
+  </script>
+</body>
+</html>
